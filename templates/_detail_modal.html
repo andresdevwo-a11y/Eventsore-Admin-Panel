@@ -1,0 +1,92 @@
+<div id="detail-modal" class="modal hidden">
+    <div class="modal-content large">
+        <div class="modal-header">
+            <h2>Detalles de Licencia</h2>
+            <button class="close-modal" onclick="closeModal('detail-modal')">&times;</button>
+        </div>
+        <div class="modal-body">
+
+            <!-- Info Header -->
+            <div class="detail-header">
+                <div>
+                    <span class="label">Código</span>
+                    <h3 id="detail-code" class="code-mono large">XXXX-XXXX-XXXX</h3>
+                </div>
+                <div class="status-badge-container">
+                    <span id="detail-status" class="badge badge-status">ACTIVE</span>
+                </div>
+            </div>
+
+            <!-- Edit Form -->
+            <form id="edit-form" method="POST" action="">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Cliente</label>
+                        <input type="text" name="client_name" id="detail-client">
+                    </div>
+                    <div class="form-group">
+                        <label>Teléfono</label>
+                        <input type="text" name="client_phone" id="detail-phone">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Notas</label>
+                    <textarea name="notes" id="detail-notes" rows="2"></textarea>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Max Dispositivos</label>
+                        <input type="number" name="max_devices" id="detail-max-devices" min="1">
+                    </div>
+                    <div class="form-group" style="display: flex; align-items: flex-end;">
+                        <button type="submit" class="btn btn-secondary full-width">Guardar Cambios</button>
+                    </div>
+                </div>
+            </form>
+
+            <hr>
+
+            <!-- Actions Grid -->
+            <div class="actions-grid">
+
+                <!-- Renew -->
+                <div class="action-card">
+                    <h4>Renovar / Extender</h4>
+                    <form id="renew-form" method="POST" action="" class="flex-form">
+                        <input type="number" name="days" placeholder="Días" required min="1" value="30">
+                        <button type="submit" class="btn btn-primary">Sumar Días</button>
+                    </form>
+                </div>
+
+                <!-- Block/Unblock -->
+                <div class="action-card">
+                    <h4>Estado</h4>
+                    <form id="block-form" method="POST" action="">
+                        <button type="submit" id="btn-block-toggle" class="btn full-width">
+                            Bloquear Licencia
+                        </button>
+                    </form>
+                </div>
+
+                <!-- Delete -->
+                <div class="action-card danger">
+                    <h4>Zona de Peligro</h4>
+                    <button onclick="openConfirmDialog()" class="btn btn-danger full-width">
+                        Eliminar Licencia
+                    </button>
+                </div>
+            </div>
+
+            <!-- Devices List -->
+            <div class="devices-section">
+                <h4>Dispositivos Registrados (<span id="device-count">0</span>)</h4>
+                <ul id="device-list" class="device-list">
+                    <!-- JS populated -->
+                </ul>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<form id="delete-form" method="POST" action="" style="display:none;"></form>

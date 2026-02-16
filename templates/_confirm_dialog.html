@@ -1,0 +1,11 @@
+<div id="confirm-modal" class="modal hidden" style="z-index: 2000;">
+    <div class="modal-content small center-text">
+        <h3>¿Estás seguro?</h3>
+        <p>Esta acción no se puede deshacer.</p>
+        <div class="modal-footer center">
+            <button onclick="closeModal('confirm-modal')" class="btn btn-secondary">Cancelar</button>
+            <button onclick="document.getElementById('delete-form').submit()" class="btn btn-danger">Sí,
+                Eliminar</button>
+        </div>
+    </div>
+</div>

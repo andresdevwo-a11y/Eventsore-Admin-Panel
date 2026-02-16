@@ -1,0 +1,49 @@
+<table class="data-table">
+    <thead>
+        <tr>
+            <th>Código</th>
+            <th>Tipo</th>
+            <th>Cliente</th>
+            <th>Estado</th>
+            <th>Expira</th>
+            <th>Dispositivos</th>
+            <th>Acciones</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for lic in licenses %}
+        <tr>
+            <td>
+                <span class="code-mono" onclick="copyToClipboard('{{ lic.license_code }}')" title="Copiar">{{
+                    lic.license_code }}</span>
+            </td>
+            <td><span class="badge badge-type">{{ lic.license_type }}</span></td>
+            <td>{{ lic.client_name or '-' }}</td>
+            <td><span class="badge badge-status status-{{ lic.status }}">{{ lic.status }}</span></td>
+            <td>
+                {% if lic.end_date %}
+                {{ lic.end_date[:10] }}
+                {% else %}
+                <span class="text-muted">Al activar</span>
+                {% endif %}
+            </td>
+            <td>
+                {{ (lic.device_ids or [])|length }} / {{ lic.max_devices }}
+            </td>
+            <td class="actions-cell">
+                <button class="btn-icon" onclick="handleDetailClick(this)" data-license='{{ lic|tojson|safe }}'
+                    title="Ver detalles">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                        <circle cx="12" cy="12" r="3"></circle>
+                    </svg>
+                </button>
+            </td>
+        </tr>
+        {% else %}
+        <tr>
+            <td colspan="7" class="text-center py-4">No se encontraron licencias.</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>

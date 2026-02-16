@@ -1,0 +1,75 @@
+<div id="create-modal" class="modal hidden">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h2>Nueva Licencia</h2>
+            <button class="close-modal" onclick="closeModal('create-modal')">&times;</button>
+        </div>
+        <form action="{{ url_for('create_license') }}" method="POST">
+            <div class="modal-body">
+                <div class="form-group">
+                    <label>Tipo de Licencia</label>
+                    <select name="type" id="create-type" required onchange="updateDaysInput()">
+                        <option value="TRIAL">Trial (7 días)</option>
+                        <option value="MENSUAL">Mensual (30 días)</option>
+                        <option value="TRIMESTRAL">Trimestral (90 días)</option>
+                        <option value="SEMESTRAL">Semestral (180 días)</option>
+                        <option value="ANUAL">Anual (365 días)</option>
+                        <option value="LIFETIME">Lifetime (100 años)</option>
+                        <option value="CUSTOM">Custom</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>Días de Validez</label>
+                    <input type="number" name="days" id="create-days" value="7" readonly required>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Nombre Cliente</label>
+                        <input type="text" name="client_name" placeholder="Ej: Juan Pérez">
+                    </div>
+                    <div class="form-group">
+                        <label>Teléfono</label>
+                        <input type="text" name="client_phone" placeholder="Ej: +52 555...">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Notas</label>
+                    <textarea name="notes" rows="2" placeholder="Notas adicionales..."></textarea>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" onclick="closeModal('create-modal')">Cancelar</button>
+                <button type="submit" class="btn btn-primary">Crear Licencia</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+    const DAYS_MAP = {
+        'TRIAL': 7,
+        'MENSUAL': 30,
+        'TRIMESTRAL': 90,
+        'SEMESTRAL': 180,
+        'ANUAL': 365,
+        'LIFETIME': 36500,
+        'CUSTOM': 0
+    };
+
+    function updateDaysInput() {
+        const type = document.getElementById('create-type').value;
+        const daysInput = document.getElementById('create-days');
+
+        if (type === 'CUSTOM') {
+            daysInput.readOnly = false;
+            daysInput.value = '';
+            daysInput.focus();
+        } else {
+            daysInput.readOnly = true;
+            daysInput.value = DAYS_MAP[type];
+        }
+    }
+</script>

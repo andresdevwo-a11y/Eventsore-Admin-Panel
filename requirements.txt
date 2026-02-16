@@ -1,0 +1,3 @@
+flask
+supabase==2.9.0
+python-dotenv

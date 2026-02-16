@@ -1,0 +1,87 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="dashboard-container">
+
+    <!-- KPIs Section -->
+    <div class="kpi-grid">
+        <div class="kpi-card">
+            <h3>Total Licencias</h3>
+            <span class="kpi-value">{{ kpis.total }}</span>
+        </div>
+        <div class="kpi-card status-active">
+            <h3>Activas</h3>
+            <span class="kpi-value">{{ kpis.active }}</span>
+        </div>
+        <div class="kpi-card status-pending">
+            <h3>Pendientes</h3>
+            <span class="kpi-value">{{ kpis.pending }}</span>
+        </div>
+        <div class="kpi-card status-expired">
+            <h3>Expiradas</h3>
+            <span class="kpi-value">{{ kpis.expired }}</span>
+        </div>
+        <div class="kpi-card status-blocked">
+            <h3>Bloqueadas</h3>
+            <span class="kpi-value">{{ kpis.blocked }}</span>
+        </div>
+    </div>
+
+    <!-- Actions & Filters -->
+    <div class="dashboard-actions">
+        <button class="btn btn-primary" onclick="openModal('create-modal')">
+            + Nueva Licencia
+        </button>
+
+        <form action="/" method="GET" class="filter-form">
+            <div class="filter-group">
+                <select name="status" onchange="this.form.submit()">
+                    <option value="all" {% if current_filters.status=='all' %}selected{% endif %}>Todas los estados
+                    </option>
+                    <option value="active" {% if current_filters.status=='active' %}selected{% endif %}>Activas</option>
+                    <option value="pending" {% if current_filters.status=='pending' %}selected{% endif %}>Pendientes
+                    </option>
+                    <option value="expired" {% if current_filters.status=='expired' %}selected{% endif %}>Expiradas
+                    </option>
+                    <option value="blocked" {% if current_filters.status=='blocked' %}selected{% endif %}>Bloqueadas
+                    </option>
+                </select>
+            </div>
+
+            <div class="filter-group">
+                <select name="type" onchange="this.form.submit()">
+                    <option value="all" {% if current_filters.type=='all' %}selected{% endif %}>Todos los tipos</option>
+                    <option value="TRIAL" {% if current_filters.type=='TRIAL' %}selected{% endif %}>Trial</option>
+                    <option value="MENSUAL" {% if current_filters.type=='MENSUAL' %}selected{% endif %}>Mensual</option>
+                    <option value="TRIMESTRAL" {% if current_filters.type=='TRIMESTRAL' %}selected{% endif %}>Trimestral
+                    </option>
+                    <option value="SEMESTRAL" {% if current_filters.type=='SEMESTRAL' %}selected{% endif %}>Semestral
+                    </option>
+                    <option value="ANUAL" {% if current_filters.type=='ANUAL' %}selected{% endif %}>Anual</option>
+                    <option value="LIFETIME" {% if current_filters.type=='LIFETIME' %}selected{% endif %}>Lifetime
+                    </option>
+                    <option value="CUSTOM" {% if current_filters.type=='CUSTOM' %}selected{% endif %}>Custom</option>
+                </select>
+            </div>
+
+            <div class="search-group">
+                <input type="text" name="q" placeholder="Buscar por código o cliente..."
+                    value="{{ current_filters.q }}">
+                <button type="submit" class="btn btn-secondary">Buscar</button>
+            </div>
+        </form>
+    </div>
+
+    <!-- License Table -->
+    <div class="table-container">
+        {% include '_license_table.html' %}
+    </div>
+
+</div>
+
+<!-- Modals -->
+{% include '_create_modal.html' %}
+{% include '_detail_modal.html' %}
+{% include '_confirm_dialog.html' %}
+
+{% endblock %}
