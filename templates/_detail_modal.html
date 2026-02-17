@@ -68,6 +68,35 @@
                     </form>
                 </div>
 
+                <!-- Advanced Options -->
+                <div class="action-card">
+                    <h4>Opciones Avanzadas</h4>
+                    <div style="display: flex; flex-direction: column; gap: 8px;">
+
+                        <!-- Reset Devices -->
+                        <form id="reset-devices-form" method="POST" action=""
+                            onsubmit="return confirm('¿Estás seguro de resetear los dispositivos? El usuario podrá vincular nuevos.')">
+                            <button type="submit" class="btn btn-secondary full-width" style="font-size: 0.9rem;">
+                                📱 Resetear Dispositivos
+                            </button>
+                        </form>
+
+                        <!-- Regenerate Code -->
+                        <form id="regenerate-code-form" method="POST" action=""
+                            onsubmit="return confirm('⚠ ATENCIÓN: Esto invalidará el código actual. El usuario necesitará el nuevo código. ¿Continuar?')">
+                            <button type="submit" class="btn btn-secondary full-width" style="font-size: 0.9rem;">
+                                🔑 Regenerar Código
+                            </button>
+                        </form>
+
+                        <!-- Duplicate -->
+                        <button type="button" class="btn btn-primary full-width" style="font-size: 0.9rem;"
+                            onclick="duplicateLicenseFromDetail()">
+                            📋 Duplicar Licencia
+                        </button>
+                    </div>
+                </div>
+
                 <!-- Delete -->
                 <div class="action-card danger">
                     <h4>Zona de Peligro</h4>

@@ -1,7 +1,11 @@
-from flask import Flask, render_template, request, redirect, url_for, flash, jsonify
+from flask import Flask, render_template, request, redirect, url_for, flash, jsonify, make_response
 from supabase import create_client, Client
 from dotenv import load_dotenv
 import os
+import csv
+import io
+import secrets
+import string
 from datetime import datetime, timedelta, timezone
 
 # Load env variables
@@ -32,6 +36,18 @@ def get_kpis(licenses):
         'expired': sum(1 for l in licenses if l.get('status') == 'expired'),
         'blocked': sum(1 for l in licenses if l.get('status') == 'blocked')
     }
+
+def generate_unique_code():
+    # Format: XXXX-XXXX-XXXX
+    def chunk():
+        return ''.join(secrets.choice(string.ascii_uppercase + string.digits) for _ in range(4))
+    
+    code = f"{chunk()}-{chunk()}-{chunk()}"
+    
+    # Check uniqueness (simple check, retry loop handled by caller or just ignored for low probability)
+    # For robust implementation, we should check DB.
+    # Given the collision space (36^12), it's extremely unlikely.
+    return code
 
 @app.route('/')
 def dashboard():
@@ -256,6 +272,109 @@ def delete_license(id):
         flash(f"Error eliminando: {str(e)}", "error")
 
     return redirect(url_for('dashboard'))
+
+@app.route('/licenses/<id>/reset-devices', methods=['POST'])
+def reset_devices(id):
+    try:
+        # Clear device_ids array
+        supabase.table('licenses').update({'device_ids': []}).eq('id', id).execute()
+        flash("Dispositivos reseteados correctamente", "success")
+    except Exception as e:
+        flash(f"Error al resetear dispositivos: {str(e)}", "error")
+        
+    return redirect(url_for('dashboard'))
+
+@app.route('/licenses/<id>/regenerate-code', methods=['POST'])
+def regenerate_code(id):
+    try:
+        new_code = generate_unique_code()
+        # Collision check loop (simple)
+        max_retries = 3
+        for _ in range(max_retries):
+            exists = supabase.table('licenses').select('id').eq('license_code', new_code).execute()
+            if not exists.data:
+                break
+            new_code = generate_unique_code()
+            
+        supabase.table('licenses').update({'license_code': new_code}).eq('id', id).execute()
+        flash(f"Código regenerado: {new_code}", "success")
+    except Exception as e:
+        flash(f"Error al regenerar código: {str(e)}", "error")
+        
+    return redirect(url_for('dashboard'))
+
+@app.route('/export')
+def export_csv():
+    if not supabase:
+        return "Error DB", 500
+
+    # Get params (same as dashboard)
+    status_filter = request.args.get('status', 'all')
+    type_filter = request.args.get('type', 'all')
+    search_query = request.args.get('q', '').lower()
+    
+    # Query (fetching all matching records, no pagination)
+    query = supabase.table('licenses').select('*')
+    
+    # Current UTC time (timezone aware)
+    now_utc = datetime.now(timezone.utc)
+
+    if status_filter != 'all':
+        if status_filter == 'expiring_soon':
+             query = query.eq('status', 'active').lte('end_date', (now_utc + timedelta(days=7)).isoformat()).gt('end_date', now_utc.isoformat())
+        else:
+            query = query.eq('status', status_filter)
+            
+    if type_filter != 'all':
+        query = query.eq('license_type', type_filter)
+        
+    if search_query:
+        query = query.ilike('license_code', f'%{search_query}%')
+        
+    # No sorting needed for CSV strictly, but nice to have consistent with default
+    query = query.order('created_at', desc=True)
+    
+    try:
+        response = query.execute()
+        licenses = response.data
+    except Exception as e:
+        return f"Error exporting: {str(e)}", 500
+        
+    # Generate CSV
+    si = io.StringIO()
+    cw = csv.writer(si)
+    # Headers
+    cw.writerow(['ID', 'Código', 'Tipo', 'Cliente', 'Teléfono', 'Estado', 'Creado', 'Expira', 'Días Restantes', 'Dispositivos', 'Max Dispositivos', 'Notas'])
+    
+    for l in licenses:
+        # Calculate days remaining
+        days_rem = ''
+        if l.get('end_date'):
+            try:
+                ed = datetime.fromisoformat(l['end_date'].replace('Z', '+00:00'))
+                days_rem = (ed - now_utc).days
+            except:
+                pass
+                
+        cw.writerow([
+            l.get('id'),
+            l.get('license_code'),
+            l.get('license_type'),
+            l.get('client_name', ''),
+            l.get('client_phone', ''),
+            l.get('status'),
+            l.get('created_at'),
+            l.get('end_date', ''),
+            days_rem,
+            len(l.get('device_ids') or []),
+            l.get('max_devices'),
+            l.get('notes', '')
+        ])
+        
+    output = make_response(si.getvalue())
+    output.headers["Content-Disposition"] = "attachment; filename=licencias_export.csv"
+    output.headers["Content-type"] = "text/csv"
+    return output
 
 if __name__ == '__main__':
     app.run(debug=True)

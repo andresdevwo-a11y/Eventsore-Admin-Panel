@@ -90,6 +90,10 @@ function openDetailModal(licenseData) {
     // Delete Action
     document.getElementById('delete-form').action = `/licenses/${licenseData.id}/delete`;
 
+    // Advanced Actions
+    document.getElementById('reset-devices-form').action = `/licenses/${licenseData.id}/reset-devices`;
+    document.getElementById('regenerate-code-form').action = `/licenses/${licenseData.id}/regenerate-code`;
+
     // Populate Devices
     const deviceList = document.getElementById('device-list');
     deviceList.innerHTML = '';
@@ -138,4 +142,36 @@ function removeDevice(licenseId, deviceId) {
                 alert('Error al eliminar dispositivo');
             }
         });
+}
+
+// Duplicate License
+function duplicateLicenseFromDetail() {
+    if (!currentLicense) return;
+
+    // Close detail modal
+    closeModal('detail-modal');
+
+    // Open create modal
+    openModal('create-modal');
+
+    // Pre-fill fields
+    const typeSelect = document.getElementById('create-type');
+    typeSelect.value = currentLicense.license_type;
+
+    // Update days input visibility/value
+    if (typeof updateDaysInput === 'function') {
+        updateDaysInput();
+    }
+
+    // If Custom, restore the original days_valid if available
+    // For now we don't have days_valid in license object in UI (it's in DB but not necessarily in the JSON unless we explicitly select it or it's implicitly there)
+    // Supabase select * includes it.
+    if (currentLicense.license_type === 'CUSTOM') {
+        document.getElementById('create-days').value = currentLicense.days_valid || '';
+    }
+
+    // Fill other fields
+    document.querySelector('input[name="client_name"]').value = currentLicense.client_name || '';
+    document.querySelector('input[name="client_phone"]').value = currentLicense.client_phone || '';
+    document.querySelector('textarea[name="notes"]').value = currentLicense.notes || '';
 }
