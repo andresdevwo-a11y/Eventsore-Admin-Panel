@@ -171,7 +171,54 @@ function duplicateLicenseFromDetail() {
     }
 
     // Fill other fields
-    document.querySelector('input[name="client_name"]').value = currentLicense.client_name || '';
-    document.querySelector('input[name="client_phone"]').value = currentLicense.client_phone || '';
     document.querySelector('textarea[name="notes"]').value = currentLicense.notes || '';
+}
+
+// WhatsApp Sharing
+function formatWhatsAppMessage(license) {
+    let msg = `*LICENCIA EVENTSTORE*\n\n`;
+    msg += `🆔 *Código:* \`${license.license_code}\`\n`;
+    msg += `👤 *Cliente:* ${license.client_name || 'N/A'}\n`;
+    msg += `📋 *Tipo:* ${license.license_type}\n`;
+
+    if (license.status === 'active' && license.days_remaining !== null) {
+        msg += `✅ *Estado:* Activa (${license.days_remaining} días restantes)\n`;
+        // We might want exact date too
+        // msg += `📅 *Vence:* ${license.end_date.split('T')[0]}\n`; 
+    } else {
+        msg += `ℹ️ *Estado:* ${license.status.toUpperCase()}\n`;
+    }
+
+    msg += `📱 *Dispositivos:* ${license.device_ids ? license.device_ids.length : 0}`;
+    if (license.max_devices) {
+        msg += ` / ${license.max_devices}`;
+    }
+    msg += `\n`;
+
+    if (license.notes) {
+        msg += `📝 *Notas:* ${license.notes}\n`;
+    }
+
+    return encodeURIComponent(msg);
+}
+
+function shareLicenseOnWhatsApp() {
+    if (!currentLicense) return;
+
+    const phone = currentLicense.client_phone;
+    if (!phone) {
+        alert('⚠️ Esta licencia no tiene un número de teléfono asociado.\n\nPor favor edita la licencia y agrega el teléfono del cliente.');
+        return;
+    }
+
+    // Basic cleanup of phone number (remove spaces, etc if needed, though usually better if stored clean)
+    // Assuming DB stores usable format or user inputs it. 
+    // If it doesn't have country code, WA might fail or open blank chat.
+    // Let's rely on what's in DB for now, maybe strip non-numeric/plus
+    const cleanPhone = phone.replace(/[^0-9+]/g, '');
+
+    const text = formatWhatsAppMessage(currentLicense);
+    const url = `https://wa.me/${cleanPhone}?text=${text}`;
+
+    window.open(url, '_blank');
 }
