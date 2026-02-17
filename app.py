@@ -342,7 +342,8 @@ def export_csv():
         
     # Generate CSV
     si = io.StringIO()
-    cw = csv.writer(si)
+    si.write('\ufeff') # BOM for Excel
+    cw = csv.writer(si, delimiter=';')
     # Headers
     cw.writerow(['ID', 'Código', 'Tipo', 'Cliente', 'Teléfono', 'Estado', 'Creado', 'Expira', 'Días Restantes', 'Dispositivos', 'Max Dispositivos', 'Notas'])
     
@@ -373,7 +374,7 @@ def export_csv():
         
     output = make_response(si.getvalue())
     output.headers["Content-Disposition"] = "attachment; filename=licencias_export.csv"
-    output.headers["Content-type"] = "text/csv"
+    output.headers["Content-type"] = "text/csv; charset=utf-8"
     return output
 
 if __name__ == '__main__':
