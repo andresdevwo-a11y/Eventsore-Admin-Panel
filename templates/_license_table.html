@@ -1,11 +1,35 @@
 <table class="data-table">
     <thead>
         <tr>
-            <th>Código</th>
+            <th>
+                <a href="{{ url_for('dashboard', sort='created_at', dir='asc' if current_filters.sort == 'created_at' and current_filters.dir == 'desc' else 'desc', status=current_filters.status, type=current_filters.type, q=current_filters.q) }}"
+                    style="color: inherit; text-decoration: none;">
+                    Código {% if current_filters.sort == 'created_at' %}{{ '↓' if current_filters.dir == 'desc' else '↑'
+                    }}{% endif %}
+                </a>
+            </th>
             <th>Tipo</th>
-            <th>Cliente</th>
-            <th>Estado</th>
-            <th>Expira</th>
+            <th>
+                <a href="{{ url_for('dashboard', sort='client_name', dir='asc' if current_filters.sort == 'client_name' and current_filters.dir == 'desc' else 'desc', status=current_filters.status, type=current_filters.type, q=current_filters.q) }}"
+                    style="color: inherit; text-decoration: none;">
+                    Cliente {% if current_filters.sort == 'client_name' %}{{ '↓' if current_filters.dir == 'desc' else
+                    '↑' }}{% endif %}
+                </a>
+            </th>
+            <th>
+                <a href="{{ url_for('dashboard', sort='status', dir='asc' if current_filters.sort == 'status' and current_filters.dir == 'desc' else 'desc', status=current_filters.status, type=current_filters.type, q=current_filters.q) }}"
+                    style="color: inherit; text-decoration: none;">
+                    Estado {% if current_filters.sort == 'status' %}{{ '↓' if current_filters.dir == 'desc' else '↑'
+                    }}{% endif %}
+                </a>
+            </th>
+            <th>
+                <a href="{{ url_for('dashboard', sort='end_date', dir='asc' if current_filters.sort == 'end_date' and current_filters.dir == 'desc' else 'desc', status=current_filters.status, type=current_filters.type, q=current_filters.q) }}"
+                    style="color: inherit; text-decoration: none;">
+                    Expira {% if current_filters.sort == 'end_date' %}{{ '↓' if current_filters.dir == 'desc' else '↑'
+                    }}{% endif %}
+                </a>
+            </th>
             <th>Dispositivos</th>
             <th>Acciones</th>
         </tr>
@@ -20,12 +44,19 @@
             <td><span class="badge badge-type">{{ lic.license_type }}</span></td>
             <td>{{ lic.client_name or '-' }}</td>
             <td><span class="badge badge-status status-{{ lic.status }}">{{ lic.status }}</span></td>
-            <td>
+            <td
+                class="{% if lic.days_remaining is not none and lic.days_remaining <= 7 and lic.days_remaining >= 0 %}text-urgent{% elif lic.days_remaining is not none and lic.days_remaining <= 30 and lic.days_remaining > 7 %}text-warning{% endif %}">
                 {% if lic.end_date %}
                 {{ lic.end_date[:10] }}
-                {% else %}
-                <span class="text-muted">Al activar</span>
-                {% endif %}
+                {% if lic.days_remaining is not none %}
+                <small class="d-block" style="font-size: 0.75rem; opacity: 0.8;">
+                    {% if lic.days_remaining < 0 %} (Vencida hace {{ lic.days_remaining|abs }} días) {% elif
+                        lic.days_remaining==0 %} (Vence hoy) {% else %} (Quedan {{ lic.days_remaining }} días) {% endif
+                        %} </small>
+                        {% endif %}
+                        {% else %}
+                        <span class="text-muted">Al activar</span>
+                        {% endif %}
             </td>
             <td>
                 {{ (lic.device_ids or [])|length }} / {{ lic.max_devices }}

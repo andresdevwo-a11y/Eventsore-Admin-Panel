@@ -2,7 +2,7 @@ from flask import Flask, render_template, request, redirect, url_for, flash, jso
 from supabase import create_client, Client
 from dotenv import load_dotenv
 import os
-from datetime import datetime
+from datetime import datetime, timedelta, timezone
 
 # Load env variables
 load_dotenv()
@@ -33,51 +33,103 @@ def get_kpis(licenses):
         'blocked': sum(1 for l in licenses if l.get('status') == 'blocked')
     }
 
-# --- Routes ---
-
 @app.route('/')
 def dashboard():
     if not supabase:
         flash("Error de conexión con base de datos", "error")
         return render_template('dashboard.html', licenses=[], kpis={}, current_filters={})
 
-    # Get filters
+    # Get params
     status_filter = request.args.get('status', 'all')
     type_filter = request.args.get('type', 'all')
     search_query = request.args.get('q', '').lower()
+    
+    # Sorting & Pagination
+    sort_by = request.args.get('sort', 'created_at')
+    sort_dir = request.args.get('dir', 'desc')
+    page = int(request.args.get('page', 1))
+    per_page = 20
+    
+    # Base Query
+    query = supabase.table('licenses').select('*', count='exact')
+    
+    # Current UTC time (timezone aware)
+    now_utc = datetime.now(timezone.utc)
 
-    # Fetch all licenses (RLS allows select)
+    # Apply filters
+    if status_filter != 'all':
+        if status_filter == 'expiring_soon':
+            # Special case for "Por Vencer" filter
+             query = query.eq('status', 'active').lte('end_date', (now_utc + timedelta(days=7)).isoformat()).gt('end_date', now_utc.isoformat())
+        else:
+            query = query.eq('status', status_filter)
+            
+    if type_filter != 'all':
+        query = query.eq('license_type', type_filter)
+        
+    if search_query:
+        # Supabase filtering with OR is tricky in py client, raw ilike is better if supported or simple client side
+        # For now, let's try strict match or use textSearch if column is indexed
+        # Simplified: Filter by code (exact or like)
+        query = query.ilike('license_code', f'%{search_query}%')
+    
+    # Sorting
+    if sort_by == 'days_remaining':
+        # approximate sorting by end_date for days_remaining
+        query = query.order('end_date', desc=(sort_dir == 'desc'))
+    else:
+        query = query.order(sort_by, desc=(sort_dir == 'desc'))
+
+    # Pagination
+    start = (page - 1) * per_page
+    end = start + per_page - 1
+    query = query.range(start, end)
+    
     try:
-        response = supabase.table('licenses').select('*').order('created_at', desc=True).execute()
-        all_licenses = response.data
+        response = query.execute()
+        filtered_licenses = response.data
+        total_count = response.count
+        
+        # Calculate Global KPIs (separate cheap query or fetch all active for small DB)
+        all_status = supabase.table('licenses').select('status, end_date').execute().data
+        
+        kpis = {
+            'total': len(all_status),
+            'active': sum(1 for l in all_status if l.get('status') == 'active'),
+            'pending': sum(1 for l in all_status if l.get('status') == 'pending'),
+            'expired': sum(1 for l in all_status if l.get('status') == 'expired'),
+            'blocked': sum(1 for l in all_status if l.get('status') == 'blocked'),
+            'expiring_soon': sum(
+                1 for l in all_status 
+                if l.get('status') == 'active' 
+                and l.get('end_date') 
+                and now_utc < datetime.fromisoformat(l['end_date'].replace('Z', '+00:00')) <= now_utc + timedelta(days=7)
+            )
+        }
     except Exception as e:
         flash(f"Error cargando licencias: {str(e)}", "error")
-        all_licenses = []
+        filtered_licenses = []
+        kpis = {}
+        total_count = 0
 
-    # Calculate KPIs BEFORE filtering for global stats
-    kpis = get_kpis(all_licenses)
-
-    # Apply Filters in Python (simpler for this scale than complex DB queries)
-    filtered_licenses = all_licenses
-
-    if status_filter != 'all':
-        filtered_licenses = [l for l in filtered_licenses if l.get('status') == status_filter]
-    
-    if type_filter != 'all':
-        filtered_licenses = [l for l in filtered_licenses if l.get('license_type') == type_filter]
-
-    if search_query:
-        filtered_licenses = [
-            l for l in filtered_licenses 
-            if search_query in l.get('license_code', '').lower() or 
-               search_query in l.get('client_name', '').lower()
-        ]
+    # Add calculated 'days_remaining' property for UI
+    for l in filtered_licenses:
+        l['days_remaining'] = None
+        if l.get('end_date'):
+            try:
+                # Handle 'Z' manually if needed, or use replace
+                ed = datetime.fromisoformat(l['end_date'].replace('Z', '+00:00'))
+                delta = (ed - now_utc).days
+                l['days_remaining'] = delta
+            except:
+                l['days_remaining'] = None
 
     return render_template(
         'dashboard.html',
         licenses=filtered_licenses,
         kpis=kpis,
-        current_filters={'status': status_filter, 'type': type_filter, 'q': search_query}
+        current_filters={'status': status_filter, 'type': type_filter, 'q': search_query, 'sort': sort_by, 'dir': sort_dir},
+        pagination={'page': page, 'per_page': per_page, 'total': total_count, 'pages': (total_count // per_page) + 1}
     )
 
 @app.route('/licenses/create', methods=['POST'])

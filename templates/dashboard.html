@@ -13,6 +13,11 @@
             <h3>Activas</h3>
             <span class="kpi-value">{{ kpis.active }}</span>
         </div>
+        <a href="{{ url_for('dashboard', status='expiring_soon') }}" class="kpi-card status-pending"
+            style="text-decoration: none; color: inherit; display: block;">
+            <h3>Por Vencer (7d)</h3>
+            <span class="kpi-value">{{ kpis.expiring_soon }}</span>
+        </a>
         <div class="kpi-card status-pending">
             <h3>Pendientes</h3>
             <span class="kpi-value">{{ kpis.pending }}</span>
@@ -29,16 +34,21 @@
 
     <!-- Actions & Filters -->
     <div class="dashboard-actions">
+        <!-- ... (existing actions) ... -->
         <button class="btn btn-primary" onclick="openModal('create-modal')">
             + Nueva Licencia
         </button>
 
         <form action="/" method="GET" class="filter-form">
+            <!-- Ensure hidden inputs for sort/dir if we want to keep them on filter change, 
+                 though usually filters reset sort, let's keep it simple -->
             <div class="filter-group">
                 <select name="status" onchange="this.form.submit()">
                     <option value="all" {% if current_filters.status=='all' %}selected{% endif %}>Todas los estados
                     </option>
                     <option value="active" {% if current_filters.status=='active' %}selected{% endif %}>Activas</option>
+                    <option value="expiring_soon" {% if current_filters.status=='expiring_soon' %}selected{% endif %}>⚠️
+                        Por Vencer</option>
                     <option value="pending" {% if current_filters.status=='pending' %}selected{% endif %}>Pendientes
                     </option>
                     <option value="expired" {% if current_filters.status=='expired' %}selected{% endif %}>Expiradas
@@ -76,6 +86,21 @@
     <div class="table-container">
         {% include '_license_table.html' %}
     </div>
+
+    <!-- Pagination -->
+    {% if pagination and pagination.pages > 1 %}
+    <div class="pagination">
+        {% if pagination.page > 1 %}
+        <a href="{{ url_for('dashboard', page=pagination.page-1, status=current_filters.status, type=current_filters.type, q=current_filters.q, sort=current_filters.sort, dir=current_filters.dir) }}"
+            class="btn">&laquo; Prev</a>
+        {% endif %}
+        <span>Página {{ pagination.page }} de {{ pagination.pages }}</span>
+        {% if pagination.page < pagination.pages %} <a
+            href="{{ url_for('dashboard', page=pagination.page+1, status=current_filters.status, type=current_filters.type, q=current_filters.q, sort=current_filters.sort, dir=current_filters.dir) }}"
+            class="btn">Next &raquo;</a>
+            {% endif %}
+    </div>
+    {% endif %}
 
 </div>
 

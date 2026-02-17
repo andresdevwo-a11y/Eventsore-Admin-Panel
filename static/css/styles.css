@@ -337,3 +337,30 @@ input:focus, select:focus, textarea:focus {
 }
 .flash-success { border-left: 4px solid var(--success); }
 .flash-error { border-left: 4px solid var(--danger); }
+
+/* Pagination */
+.pagination {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 15px;
+    margin-top: 20px;
+}
+.pagination span {
+    color: var(--text-muted);
+    font-size: 0.9rem;
+}
+.pagination .btn {
+    padding: 6px 12px;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    color: var(--text-main);
+}
+.pagination .btn:hover {
+    background: var(--bg-hover);
+    border-color: var(--accent);
+}
+
+/* Urgency Helpers */
+.text-urgent { color: var(--danger) !important; font-weight: 700; }
+.text-warning { color: var(--warning) !important; font-weight: 700; }
