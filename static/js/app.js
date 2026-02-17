@@ -176,28 +176,57 @@ function duplicateLicenseFromDetail() {
 
 // WhatsApp Sharing
 function formatWhatsAppMessage(license) {
-    let msg = `*LICENCIA EVENTSTORE*\n\n`;
-    msg += `🆔 *Código:* \`${license.license_code}\`\n`;
-    msg += `👤 *Cliente:* ${license.client_name || 'N/A'}\n`;
-    msg += `📋 *Tipo:* ${license.license_type}\n`;
+    const clientName = license.client_name || 'Cliente';
+    const deviceCount = license.device_ids ? license.device_ids.length : 0;
 
-    if (license.status === 'active' && license.days_remaining !== null) {
-        msg += `✅ *Estado:* Activa (${license.days_remaining} días restantes)\n`;
-        // We might want exact date too
-        // msg += `📅 *Vence:* ${license.end_date.split('T')[0]}\n`; 
+    // Header
+    let msg = `Hola ${clientName},\n\n`;
+    msg += `Aqui tienes los detalles de tu licencia para Eventstore:\n\n`;
+
+    // Code
+    msg += `--------------------------------\n`;
+    msg += `CODIGO DE LICENCIA:\n`;
+    msg += `${license.license_code}\n`;
+    msg += `--------------------------------\n\n`;
+
+    // Details
+    msg += `DETALLES\n`;
+    msg += `Plan: ${license.license_type}\n`;
+
+    // Status Logic
+    if (license.status === 'active') {
+        msg += `Estado: Activa\n`;
+        if (license.end_date) {
+            try {
+                const datePart = license.end_date.split('T')[0];
+                const [y, m, d] = datePart.split('-');
+                msg += `Vence el: ${d}/${m}/${y}\n`;
+            } catch (e) {
+                msg += `Vence el: ${license.end_date.split('T')[0]}\n`;
+            }
+        }
+        if (license.days_remaining !== null) {
+            msg += `Tiempo restante: ${license.days_remaining} dias\n`;
+        }
     } else {
-        msg += `ℹ️ *Estado:* ${license.status.toUpperCase()}\n`;
+        let statusMap = {
+            'expired': 'Expirada',
+            'pending': 'Pendiente',
+            'blocked': 'Bloqueada'
+        };
+        msg += `Estado: ${statusMap[license.status] || license.status.toUpperCase()}\n`;
     }
 
-    msg += `📱 *Dispositivos:* ${license.device_ids ? license.device_ids.length : 0}`;
-    if (license.max_devices) {
-        msg += ` / ${license.max_devices}`;
-    }
-    msg += `\n`;
+    msg += `Dispositivos: ${deviceCount} / ${license.max_devices}\n\n`;
 
+    // Notes
     if (license.notes) {
-        msg += `📝 *Notas:* ${license.notes}\n`;
+        msg += `Nota: ${license.notes}\n\n`;
     }
+
+    // Footer
+    msg += `Gracias por confiar en nosotros.\n`;
+    msg += `Si tienes dudas, contactanos por este medio.`;
 
     return encodeURIComponent(msg);
 }
