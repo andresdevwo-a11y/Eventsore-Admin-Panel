@@ -76,23 +76,36 @@
                         <!-- Reset Devices -->
                         <form id="reset-devices-form" method="POST" action=""
                             onsubmit="return confirm('¿Estás seguro de resetear los dispositivos? El usuario podrá vincular nuevos.')">
-                            <button type="submit" class="btn btn-secondary full-width" style="font-size: 0.9rem;">
-                                📱 Resetear Dispositivos
+                            <button type="submit" class="btn btn-secondary full-width btn-sm btn-with-icon">
+                                <svg viewBox="0 0 24 24" class="btn-icon-svg">
+                                    <rect x="5" y="2" width="14" height="20" rx="2" ry="2"></rect>
+                                    <line x1="12" y1="18" x2="12.01" y2="18"></line>
+                                </svg>
+                                Resetear Dispositivos
                             </button>
                         </form>
 
                         <!-- Regenerate Code -->
                         <form id="regenerate-code-form" method="POST" action=""
                             onsubmit="return confirm('⚠ ATENCIÓN: Esto invalidará el código actual. El usuario necesitará el nuevo código. ¿Continuar?')">
-                            <button type="submit" class="btn btn-secondary full-width" style="font-size: 0.9rem;">
-                                🔑 Regenerar Código
+                            <button type="submit" class="btn btn-secondary full-width btn-sm btn-with-icon">
+                                <svg viewBox="0 0 24 24" class="btn-icon-svg">
+                                    <path
+                                        d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4">
+                                    </path>
+                                </svg>
+                                Regenerar Código
                             </button>
                         </form>
 
                         <!-- Duplicate -->
-                        <button type="button" class="btn btn-primary full-width" style="font-size: 0.9rem;"
+                        <button type="button" class="btn btn-primary full-width btn-sm btn-with-icon"
                             onclick="duplicateLicenseFromDetail()">
-                            📋 Duplicar Licencia
+                            <svg viewBox="0 0 24 24" class="btn-icon-svg">
+                                <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                                <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+                            </svg>
+                            Duplicar Licencia
                         </button>
                     </div>
                 </div>

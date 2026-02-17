@@ -364,3 +364,24 @@ input:focus, select:focus, textarea:focus {
 /* Urgency Helpers */
 .text-urgent { color: var(--danger) !important; font-weight: 700; }
 .text-warning { color: var(--warning) !important; font-weight: 700; }
+
+/* Button Icons & Refinements */
+.btn-with-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center; /* Default center, can be overridden */
+    gap: 8px;
+}
+
+.btn-sm {
+    font-size: 0.875rem;
+    padding: 6px 12px;
+}
+
+.btn-icon-svg {
+    width: 16px;
+    height: 16px;
+    stroke: currentColor;
+    stroke-width: 2;
+    fill: none;
+}
