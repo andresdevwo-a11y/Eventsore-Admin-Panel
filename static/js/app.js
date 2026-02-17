@@ -59,7 +59,21 @@ function openDetailModal(licenseData) {
     document.getElementById('detail-max-devices').value = licenseData.max_devices;
 
     // Populate Actions
-    document.getElementById('renew-form').action = `/licenses/${licenseData.id}/renew`;
+    const renewForm = document.getElementById('renew-form');
+    const renewBtn = renewForm.querySelector('button[type="submit"]');
+
+    if (licenseData.status === 'expired') {
+        renewForm.action = `/licenses/${licenseData.id}/reactivate`;
+        renewBtn.textContent = 'Reactivar (Reiniciar Fecha)';
+        renewBtn.classList.remove('btn-primary');
+        renewBtn.classList.add('btn-warning');
+    } else {
+        // Active, Pending, Blocked (blocked usually needs unblock first, but extending validity is valid)
+        renewForm.action = `/licenses/${licenseData.id}/extend`;
+        renewBtn.textContent = 'Extender (Sumar Días)';
+        renewBtn.classList.remove('btn-warning');
+        renewBtn.classList.add('btn-primary');
+    }
 
     // Block Toggle Button
     const blockForm = document.getElementById('block-form');

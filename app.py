@@ -124,51 +124,40 @@ def update_license(id):
 
     return redirect(url_for('dashboard'))
 
-@app.route('/licenses/<id>/renew', methods=['POST'])
-def renew_license(id):
+@app.route('/licenses/<id>/reactivate', methods=['POST'])
+def reactivate_license(id):
     days_to_add = int(request.form.get('days', 30))
     
     try:
-        # First get current end_date
-        current = supabase.table('licenses').select('end_date, status').eq('id', id).single().execute()
+        response = supabase.rpc('reactivate_license', {'p_license_id': id, 'p_days_to_add': days_to_add}).execute()
+        result = response.data
         
-        if current.data:
-            # SQL Logic: update end_date = end_date + interval
-            # Doing it via raw update might be tricky with interval strings in client
-            # Simplified approach: update status to active if expired, let SQL trigger handle updated_at
-            # But adding days to a date is best done via SQL or fetching, parsing, adding in python.
+        if result and result.get('success'):
+             # Formating date for display could be nice but raw string is okay for flash
+            flash(f"Licencia reactivada correctamente. Vence: {result.get('new_end_date')}", "success")
+        else:
+            flash(f"Error al reactivar: {result.get('message')}", "error")
             
-            # Python approach:
-            current_end = current.data.get('end_date')
-            msg = "Licencia renovada"
-            
-            if not current_end:
-                 # If no end_date (pending), just ignored or handled manually?
-                 # Assuming pending licenses activate on first use. 
-                 # If we want to extend validity usage days:
-                 pass
-            else:
-                 # This is complex to do purely in client without RPC for "Add Days"
-                 # Let's use a raw query or just update status for now if that is what "Renew" means for expired.
-                 # BETTER: Create a SQL function `renew_license_days` or process date here.
-                 
-                 # Hacky mostly-working way: Custom RPC is better.
-                 # Let's try to update status to 'active' at least.
-                 pass
+    except Exception as e:
+        flash(f"Error reactivando: {str(e)}", "error")
 
-            # Update status to active if it was expired
-            update_payload = {'status': 'active'} 
-            
-            # Note: We are NOT changing end_date here because supabase-py + postgres intervals are tricky without raw SQL.
-            # Ideally we should add an RPC `extend_license(id, days)`.
-            # For now, we will just reactivate it.
-            # TODO: Create extend_license RPC for real date math.
-            
-            supabase.table('licenses').update(update_payload).eq('id', id).execute()
-            flash(f"Licencia reactivada. (Nota: La fecha no se extendió, requiere función SQL adicional)", "warning")
+    return redirect(url_for('dashboard'))
+
+@app.route('/licenses/<id>/extend', methods=['POST'])
+def extend_license(id):
+    days_to_add = int(request.form.get('days', 30))
+    
+    try:
+        response = supabase.rpc('extend_license', {'p_license_id': id, 'p_days_to_add': days_to_add}).execute()
+        result = response.data
+        
+        if result and result.get('success'):
+            flash(f"Licencia extendida correctamente. Vence: {result.get('new_end_date')}", "success")
+        else:
+            flash(f"Error al extender: {result.get('message')}", "error")
 
     except Exception as e:
-        flash(f"Error renovando: {str(e)}", "error")
+        flash(f"Error extendiendo: {str(e)}", "error")
 
     return redirect(url_for('dashboard'))
 
