@@ -6,138 +6,142 @@
         </div>
         <div class="modal-body">
 
-            <!-- Info Header -->
+            <!-- Info Header (Fixed at top) -->
             <div class="detail-header">
                 <div>
-                    <span class="label">Código</span>
-                    <h3 id="detail-code" class="code-mono large">XXXX-XXXX-XXXX</h3>
+                    <span class="label" style="font-size: 0.8rem; color: var(--text-muted);">Código de Licencia</span>
+                    <h3 id="detail-code" class="code-mono large" style="margin-top: 4px; color: var(--text-main);">XXXX-XXXX-XXXX</h3>
                 </div>
                 <div class="status-badge-container">
                     <span id="detail-status" class="badge badge-status">ACTIVE</span>
                 </div>
             </div>
 
-            <!-- Edit Form -->
-            <form id="edit-form" method="POST" action="">
-                <div class="form-row">
-                    <div class="form-group">
-                        <label>Cliente</label>
-                        <input type="text" name="client_name" id="detail-client">
+            <!-- Tabs Navigation -->
+            <div class="tabs-header">
+                <button class="tab-btn active" onclick="switchTab('tab-info')">Información General</button>
+                <button class="tab-btn" onclick="switchTab('tab-actions')">Gestión y Operaciones</button>
+                <button class="tab-btn" onclick="switchTab('tab-advanced')">Avanzado y Peligro</button>
+            </div>
+
+            <!-- TAB 1: Información General -->
+            <div id="tab-info" class="tab-content active">
+                <form id="edit-form" method="POST" action="">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Cliente</label>
+                            <input type="text" name="client_name" id="detail-client">
+                        </div>
+                        <div class="form-group">
+                            <label>Teléfono</label>
+                            <input type="text" name="client_phone" id="detail-phone">
+                        </div>
                     </div>
                     <div class="form-group">
-                        <label>Teléfono</label>
-                        <input type="text" name="client_phone" id="detail-phone">
+                        <label>Notas</label>
+                        <textarea name="notes" id="detail-notes" rows="2"></textarea>
                     </div>
-                </div>
-                <div class="form-group">
-                    <label>Notas</label>
-                    <textarea name="notes" id="detail-notes" rows="2"></textarea>
-                </div>
-                <div class="form-row">
-                    <div class="form-group">
-                        <label>Max Dispositivos</label>
-                        <input type="number" name="max_devices" id="detail-max-devices" min="1">
+                    
+                    <div class="form-row" style="align-items: flex-end; margin-bottom: 24px;">
+                        <div class="form-group" style="margin-bottom: 0;">
+                            <label>Max Dispositivos</label>
+                            <input type="number" name="max_devices" id="detail-max-devices" min="1">
+                        </div>
+                        <div class="form-group" style="margin-bottom: 0;">
+                            <button type="submit" class="btn btn-secondary full-width">Guardar Cambios</button>
+                        </div>
                     </div>
-                    <div class="form-group" style="display: flex; align-items: flex-end;">
-                        <button type="submit" class="btn btn-secondary full-width">Guardar Cambios</button>
-                    </div>
-                </div>
-            </form>
+                </form>
 
-            <hr>
+                <hr style="border-color: var(--border); margin: 20px 0;">
 
-            <!-- Actions Grid -->
-            <div class="actions-grid">
-
-                <!-- Renew -->
-                <div class="action-card">
-                    <h4>Renovar / Extender</h4>
-                    <form id="renew-form" method="POST" action="" class="flex-form">
-                        <input type="number" name="days" placeholder="Días" required min="1" value="30">
-                        <button type="submit" class="btn btn-primary">Sumar Días</button>
-                    </form>
-                </div>
-
-                <!-- Block/Unblock -->
-                <div class="action-card">
-                    <h4>Estado</h4>
-                    <form id="block-form" method="POST" action="">
-                        <button type="submit" id="btn-block-toggle" class="btn full-width">
-                            Bloquear Licencia
-                        </button>
-                    </form>
-                </div>
-
-                <!-- Communication -->
-                <div class="action-card">
-                    <h4>Comunicación</h4>
-                    <button type="button" class="btn btn-success full-width btn-with-icon"
-                        onclick="shareLicenseOnWhatsApp()">
-                        <svg viewBox="0 0 24 24" class="btn-icon-svg" fill="currentColor">
-                            <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.231-.298.347-.497.116-.198.058-.371-.03-.544-.086-.173-.792-1.912-1.085-2.62-.284-.685-.576-.593-.792-.603-.205-.01-.438-.01-.671-.01-.233 0-.612.087-.932.434-.32.348-1.226 1.202-1.226 2.932 0 1.731 1.26 3.404 1.436 3.639.175.235 2.479 3.791 6.002 5.312.84.362 1.493.579 2.016.744.873.276 1.668.238 2.296.144.704-.105 1.758-.718 2.006-1.412.247-.694.247-1.289.173-1.412-.074-.124-.272-.198-.569-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/>
-                        </svg>
-                        Compartir por WhatsApp
-                    </button>
-                    <!-- Duplicate (Moved here or keep in advanced? Let's keep duplicate in advanced as user requested specific place for whatsapp) -->
-                </div>
-
-                <!-- Advanced Options -->
-                <div class="action-card">
-                    <h4>Opciones Avanzadas</h4>
-                    <div style="display: flex; flex-direction: column; gap: 8px;">
-
-                        <!-- Reset Devices -->
-                        <form id="reset-devices-form" method="POST" action=""
-                            onsubmit="return confirm('¿Estás seguro de resetear los dispositivos? El usuario podrá vincular nuevos.')">
-                            <button type="submit" class="btn btn-secondary full-width btn-sm btn-with-icon">
-                                <svg viewBox="0 0 24 24" class="btn-icon-svg">
-                                    <rect x="5" y="2" width="14" height="20" rx="2" ry="2"></rect>
-                                    <line x1="12" y1="18" x2="12.01" y2="18"></line>
-                                </svg>
-                                Resetear Dispositivos
-                            </button>
-                        </form>
-
-                        <!-- Regenerate Code -->
-                        <form id="regenerate-code-form" method="POST" action=""
-                            onsubmit="return confirm('⚠ ATENCIÓN: Esto invalidará el código actual. El usuario necesitará el nuevo código. ¿Continuar?')">
-                            <button type="submit" class="btn btn-secondary full-width btn-sm btn-with-icon">
-                                <svg viewBox="0 0 24 24" class="btn-icon-svg">
-                                    <path
-                                        d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4">
-                                    </path>
-                                </svg>
-                                Regenerar Código
-                            </button>
-                        </form>
-
-                        <!-- Duplicate -->
-                        <button type="button" class="btn btn-primary full-width btn-sm btn-with-icon"
-                            onclick="duplicateLicenseFromDetail()">
-                            <svg viewBox="0 0 24 24" class="btn-icon-svg">
-                                <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
-                                <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
-                            </svg>
-                            Duplicar Licencia
-                        </button>
-                    </div>
-                </div>
-
-                <!-- Delete -->
-                <div class="action-card danger">
-                    <h4>Zona de Peligro</h4>
-                    <button onclick="openConfirmDialog()" class="btn btn-danger full-width">
-                        Eliminar Licencia
-                    </button>
+                <div class="devices-section">
+                    <h4>Dispositivos Registrados (<span id="device-count">0</span>)</h4>
+                    <ul id="device-list" class="device-list">
+                        <!-- JS populated -->
+                    </ul>
                 </div>
             </div>
 
-            <!-- Devices List -->
-            <div class="devices-section">
-                <h4>Dispositivos Registrados (<span id="device-count">0</span>)</h4>
-                <ul id="device-list" class="device-list">
-                    <!-- JS populated -->
-                </ul>
+            <!-- TAB 2: Gestión y Operaciones -->
+            <div id="tab-actions" class="tab-content">
+                <div class="actions-grid" style="grid-template-columns: 1fr; gap: 20px;">
+                    <!-- Renew -->
+                    <div class="action-card">
+                        <h4>Renovar / Extender Tiempo</h4>
+                        <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 12px;">Agrega días de validez a esta licencia. Si está expirada, se reactivará.</p>
+                        <form id="renew-form" method="POST" action="" class="flex-form">
+                            <input type="number" name="days" placeholder="Días a sumar" required min="1" value="30" style="max-width: 150px;">
+                            <button type="submit" class="btn btn-primary">Aplicar Cambios</button>
+                        </form>
+                    </div>
+
+                    <!-- Communication -->
+                    <div class="action-card">
+                        <h4>Comunicación con Cliente</h4>
+                        <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 12px;">Envía los detalles de la licencia al cliente vía WhatsApp.</p>
+                        <button type="button" class="btn btn-success btn-with-icon" style="width: auto;" onclick="shareLicenseOnWhatsApp()">
+                            <svg viewBox="0 0 24 24" class="btn-icon-svg" fill="currentColor">
+                                <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.231-.298.347-.497.116-.198.058-.371-.03-.544-.086-.173-.792-1.912-1.085-2.62-.284-.685-.576-.593-.792-.603-.205-.01-.438-.01-.671-.01-.233 0-.612.087-.932.434-.32.348-1.226 1.202-1.226 2.932 0 1.731 1.26 3.404 1.436 3.639.175.235 2.479 3.791 6.002 5.312.84.362 1.493.579 2.016.744.873.276 1.668.238 2.296.144.704-.105 1.758-.718 2.006-1.412.247-.694.247-1.289.173-1.412-.074-.124-.272-.198-.569-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/>
+                            </svg>
+                            Compartir por WhatsApp
+                        </button>
+                    </div>
+
+                    <!-- Block/Unblock -->
+                    <div class="action-card">
+                        <h4>Control de Acceso</h4>
+                        <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 12px;">Una licencia bloqueada se denegará en todos los dispositivos conectados inmediatamente.</p>
+                        <form id="block-form" method="POST" action="">
+                            <button type="submit" id="btn-block-toggle" class="btn btn-warning" style="width: auto;">
+                                Bloquear Licencia
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB 3: Avanzado y Peligro -->
+            <div id="tab-advanced" class="tab-content">
+                <div class="actions-grid" style="grid-template-columns: 1fr; gap: 20px;">
+                    <!-- Opciones Administrativas -->
+                    <div class="action-card">
+                        <h4>Herramientas Administrativas</h4>
+                        <div style="display: flex; flex-direction: column; gap: 12px; margin-top: 12px;">
+                            
+                            <!-- Reset Devices -->
+                            <form id="reset-devices-form" method="POST" action="" onsubmit="return confirm('¿Estás seguro de resetear los dispositivos? El usuario podrá vincular nuevos.')">
+                                <button type="submit" class="btn btn-secondary full-width btn-sm btn-with-icon" style="justify-content: flex-start;">
+                                    <svg viewBox="0 0 24 24" class="btn-icon-svg"><rect x="5" y="2" width="14" height="20" rx="2" ry="2"></rect><line x1="12" y1="18" x2="12.01" y2="18"></line></svg>
+                                    Resetear Dispositivos (Desvincular todos)
+                                </button>
+                            </form>
+
+                            <!-- Regenerate Code -->
+                            <form id="regenerate-code-form" method="POST" action="" onsubmit="return confirm('⚠ ATENCIÓN: Esto invalidará el código actual. El usuario necesitará el nuevo código. ¿Continuar?')">
+                                <button type="submit" class="btn btn-secondary full-width btn-sm btn-with-icon" style="justify-content: flex-start;">
+                                    <svg viewBox="0 0 24 24" class="btn-icon-svg"><path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4"></path></svg>
+                                    Regenerar Código de Licencia
+                                </button>
+                            </form>
+
+                            <!-- Duplicate -->
+                            <button type="button" class="btn btn-secondary full-width btn-sm btn-with-icon" style="justify-content: flex-start;" onclick="duplicateLicenseFromDetail()">
+                                <svg viewBox="0 0 24 24" class="btn-icon-svg"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+                                Crear duplicado de esta licencia
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Delete Section -->
+                    <div class="action-card danger" style="background: rgba(239, 68, 68, 0.05);">
+                        <h4 style="color: var(--danger);">Zona de Peligro</h4>
+                        <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 12px;">Eliminar la licencia borrará completamente el registro. Esta acción no se puede deshacer.</p>
+                        <button onclick="openConfirmDialog()" class="btn btn-danger" style="width: auto;">
+                            Eliminar Licencia Permanentemente
+                        </button>
+                    </div>
+                </div>
             </div>
 
         </div>

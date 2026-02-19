@@ -17,6 +17,23 @@ function closeModal(modalId) {
     }
 }
 
+// Tab System
+function switchTab(tabId) {
+    // Esconder todos los contenidos
+    document.querySelectorAll('.tab-content').forEach(content => {
+        content.classList.remove('active');
+    });
+    
+    // Quitar active a todos los botones
+    document.querySelectorAll('.tab-btn').forEach(btn => {
+        btn.classList.remove('active');
+    });
+    
+    // Activar el que se ha clickeado
+    document.getElementById(tabId).classList.add('active');
+    document.querySelector(`button[onclick="switchTab('${tabId}')"]`).classList.add('active');
+}
+
 // Close modals on overlay click
 document.getElementById('modal-overlay').addEventListener('click', () => {
     document.querySelectorAll('.modal').forEach(modal => modal.classList.add('hidden'));
@@ -115,6 +132,9 @@ function openDetailModal(licenseData) {
             deviceList.appendChild(li);
         });
     }
+
+    // Reset Tabs
+    switchTab('tab-info');
 
     openModal('detail-modal');
 }
