@@ -256,7 +256,10 @@ def extend_license(id):
         result = response.data
         
         if result and result.get('success'):
-            flash(f"Licencia extendida correctamente. Vence: {result.get('new_end_date')}", "success")
+            if result.get('new_end_date'):
+               flash(f"Licencia extendida correctamente. Vence: {result.get('new_end_date')}", "success")
+            else:
+               flash(f"Licencia pendiente extendida. Nuevos días totales: {result.get('new_days_valid')}", "success")
         else:
             flash(f"Error al extender: {result.get('message')}", "error")
 
