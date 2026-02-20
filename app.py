@@ -211,6 +211,42 @@ def reactivate_license(id):
 
     return redirect(url_for('dashboard'))
 
+@app.route('/licenses/<id>/change-type', methods=['POST'])
+def change_license_type(id):
+    new_type = request.form.get('type')
+    new_days = request.form.get('days')
+    
+    if not new_type or not new_days:
+        flash("Datos incompletos para cambiar el tipo.", "error")
+        return redirect(url_for('dashboard'))
+        
+    try:
+        new_days = int(new_days)
+    except ValueError:
+        flash("El número de días debe ser un entero válido.", "error")
+        return redirect(url_for('dashboard'))
+    
+    try:
+        response = supabase.rpc('change_license_type', {
+            'p_license_id': id, 
+            'p_new_type': new_type,
+            'p_new_days': new_days
+        }).execute()
+        
+        result = response.data
+        if result and result.get('success'):
+            if result.get('new_end_date'):
+               flash(f"Tipo cambiado a {new_type}. Nuevo vencimiento: {result.get('new_end_date')} ({result.get('status')})", "success")
+            else:
+               flash(f"Tipo cambiado a {new_type}.", "success")
+        else:
+            flash(f"Error al cambiar tipo: {result.get('message')}", "error")
+
+    except Exception as e:
+        flash(f"Error cambiando tipo: {str(e)}", "error")
+
+    return redirect(url_for('dashboard'))
+
 @app.route('/licenses/<id>/extend', methods=['POST'])
 def extend_license(id):
     days_to_add = int(request.form.get('days', 30))

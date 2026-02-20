@@ -136,7 +136,57 @@ function openDetailModal(licenseData) {
     // Reset Tabs
     switchTab('tab-info');
 
+    // Populate Change Type Form
+    const changeTypeForm = document.getElementById('change-type-form');
+    if (changeTypeForm) {
+        changeTypeForm.action = `/licenses/${licenseData.id}/change-type`;
+        const typeSelect = document.getElementById('change-type-select');
+        const daysInput = document.getElementById('change-type-days');
+        
+        if (typeSelect && daysInput) {
+            // Set current type
+            typeSelect.value = licenseData.license_type || 'CUSTOM';
+            
+            // Set current days (using the DAYS_MAP logic or falling back to currentLicense)
+            if (licenseData.license_type === 'CUSTOM') {
+                daysInput.readOnly = false;
+                daysInput.value = licenseData.days_valid || '';
+            } else {
+                daysInput.readOnly = true;
+                // If DAYS_MAP is available globally from create modal script, use it. 
+                // Otherwise fall back to the license's existing days_valid.
+                if (typeof DAYS_MAP !== 'undefined' && DAYS_MAP[licenseData.license_type] !== undefined) {
+                    daysInput.value = DAYS_MAP[licenseData.license_type];
+                } else {
+                    daysInput.value = licenseData.days_valid || '';
+                }
+            }
+        }
+    }
+
     openModal('detail-modal');
+}
+
+// Handler for Change Type select (similar to updateDaysInput)
+function updateChangeTypeDays() {
+    const type = document.getElementById('change-type-select').value;
+    const daysInput = document.getElementById('change-type-days');
+
+    if (type === 'CUSTOM') {
+        daysInput.readOnly = false;
+        // Check if the custom type was already the original type, then restore the days
+        if (currentLicense && currentLicense.license_type === 'CUSTOM') {
+            daysInput.value = currentLicense.days_valid || '';
+        } else {
+            daysInput.value = '';
+        }
+        daysInput.focus();
+    } else {
+        daysInput.readOnly = true;
+        if (typeof DAYS_MAP !== 'undefined') {
+            daysInput.value = DAYS_MAP[type];
+        }
+    }
 }
 
 // Open confirmation
